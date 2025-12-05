@@ -15,7 +15,7 @@ import { SortType } from '../../types/sort';
 function MainPage() {
   const dispatch = useDispatch<AppDispatch>();
 
-  const currentCity = useSelector((state: RootState) => state.city);
+  const currentCityName = useSelector((state: RootState) => state.cityName);
   const allOffers = useSelector((state: RootState) => state.offers);
 
   const [selectedOffer, setSelectedOffer] = useState<FullOffer | null>(null);
@@ -41,11 +41,13 @@ function MainPage() {
   };
 
   const filteredOffers = allOffers.filter(
-    (offer) => offer.city.name === currentCity.name
+    (offer) => offer.city.name === currentCityName
   );
 
   const sortedOffers = sortOffers(filteredOffers, currentSortType);
-  const city = currentCity;
+  const city =
+    CITIES_LOCATION.find((cityItem) => cityItem.name === currentCityName) ??
+    CITIES_LOCATION[0];
 
   return (
     <div className="page page--gray page--main">
@@ -86,7 +88,7 @@ function MainPage() {
           <section className="locations container">
             <CitiesList
               cities={CITIES_LOCATION}
-              activeCityName={currentCity.name}
+              activeCityName={currentCityName}
               onCityChange={handleCityChange}
             />
           </section>
