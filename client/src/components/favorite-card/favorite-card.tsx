@@ -1,4 +1,7 @@
+import { useDispatch } from 'react-redux';
 import { FullOffer } from '../../types/offer';
+import { AppDispatch } from '../../store';
+import { toggleFavorite } from '../../store/action';
 
 type FavoriteCardProps = {
   offer: FullOffer;
@@ -6,6 +9,7 @@ type FavoriteCardProps = {
 
 function FavoriteCard({ offer }: FavoriteCardProps) {
   const ratingWidth = `${(offer.rating / 5) * 100}%`;
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <article className="favorites__card place-card">
@@ -38,9 +42,10 @@ function FavoriteCard({ offer }: FavoriteCardProps) {
               offer.isFavorite ? 'place-card__bookmark-button--active' : ''
             }`.trim()}
             type="button"
+            onClick={() => dispatch(toggleFavorite(offer.id))}
           >
             <svg className="place-card__bookmark-icon" width="18" height="19">
-              <use href="#icon-bookmark"></use>
+              <use xlinkHref="/img/sprite.svg#icon-bookmark"></use>
             </svg>
             <span className="visually-hidden">
               {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}

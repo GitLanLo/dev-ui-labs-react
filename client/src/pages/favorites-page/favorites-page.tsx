@@ -1,17 +1,16 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { FavoriteCardList } from '../../components/favorite-card-list/favorite-card-list';
 import { FullOffer, OffersList } from '../../types/offer';
-
-type FavoritesPageProps = {
-  offersList: OffersList;
-};
+import { RootState, AppDispatch } from '../../store';
+import { changeCity } from '../../store/action';
+import { AppRoute } from '../../const';
 
 type FavoritesByCity = Record<string, FullOffer[]>;
 
 function groupFavoritesByCity(offers: OffersList): FavoritesByCity {
-  const favorites = offers.filter((offer) => offer.isFavorite);
-
-  return favorites.reduce<FavoritesByCity>((acc, offer) => {
+  return offers.reduce<FavoritesByCity>((acc, offer) => {
     const cityName = offer.city.name;
 
     if (!acc[cityName]) {
@@ -24,9 +23,13 @@ function groupFavoritesByCity(offers: OffersList): FavoritesByCity {
   }, {});
 }
 
-function FavoritesPage({ offersList }: FavoritesPageProps) {
-  const favoritesByCity = groupFavoritesByCity(offersList);
+function FavoritesPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const offers = useSelector((state: RootState) => state.offers);
+  const favorites = offers.filter((offer) => offer.isFavorite);
+  const favoritesByCity = groupFavoritesByCity(favorites);
   const cityEntries = Object.entries(favoritesByCity);
+  const favoritesCount = favorites.length;
 
   return (
     <div className="page">
@@ -39,18 +42,18 @@ function FavoritesPage({ offersList }: FavoritesPageProps) {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a
+                  <Link
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    to={AppRoute.Favorites}
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
                       Myemail@gmail.com
                     </span>
                     <span className="header__favorite-count">
-                      {cityEntries.length}
+                      {favoritesCount}
                     </span>
-                  </a>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">
@@ -75,9 +78,13 @@ function FavoritesPage({ offersList }: FavoritesPageProps) {
                 >
                   <div className="favorites__locations locations locations--current">
                     <div className="locations__item">
-                      <a className="locations__item-link" href="#">
+                      <Link
+                        className="locations__item-link"
+                        to={AppRoute.Main}
+                        onClick={() => dispatch(changeCity(cityName))}
+                      >
                         <span>{cityName}</span>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                   <div className="favorites__places">

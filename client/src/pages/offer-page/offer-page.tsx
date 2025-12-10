@@ -1,21 +1,24 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { CommentForm } from '../../components/comment-form/comment-form';
 import { ReviewsList } from '../../components/reviews-list/reviews-list';
 import { Map } from '../../components/map/map';
 import { NearPlacesList } from '../../components/near-places-list/near-places-list';
-import { FullOffer, OffersList } from '../../types/offer';
+import { FullOffer } from '../../types/offer';
 import { reviewsByOfferId } from '../../mocks/reviews';
 import { Reviews } from '../../types/review';
+import { RootState, AppDispatch } from '../../store';
+import { toggleFavorite } from '../../store/action';
+import { AppRoute } from '../../const';
 
-type OfferPageProps = {
-  offers: OffersList;
-};
-
-function OfferPage({ offers }: OfferPageProps) {
+function OfferPage() {
   const { id } = useParams<{ id: string }>();
 
+  const dispatch = useDispatch<AppDispatch>();
+  const offers = useSelector((state: RootState) => state.offers);
+  const favoritesCount = offers.filter((item) => item.isFavorite).length;
   const [selectedPoint, setSelectedPoint] = useState<FullOffer | null>(null);
 
   const offer: FullOffer | undefined = offers.find((item) => item.id === id);
@@ -69,16 +72,16 @@ function OfferPage({ offers }: OfferPageProps) {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a
+                  <Link
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    to={AppRoute.Favorites}
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
                       Myemail@gmail.com
                     </span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
+                    <span className="header__favorite-count">{favoritesCount}</span>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">
@@ -113,9 +116,15 @@ function OfferPage({ offers }: OfferPageProps) {
 
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">{offer.title}</h1>
-                <button className="offer__bookmark-button button" type="button">
+                <button
+                  className={`offer__bookmark-button button ${
+                    offer.isFavorite ? 'place-card__bookmark-button--active' : ''
+                  }`.trim()}
+                  type="button"
+                  onClick={() => dispatch(toggleFavorite(offer.id))}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
-                    <use href="#icon-bookmark"></use>
+                    <use xlinkHref="/img/sprite.svg#icon-bookmark"></use>
                   </svg>
                   <span className="visually-hidden">
                     {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}

@@ -6,13 +6,8 @@ import { OfferPage } from '../../pages/offer-page/offer-page';
 import { NotFoundPage } from '../../pages/not-found-page/not-found-page';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { PrivateRoute } from '../private-route/private-route';
-import { OffersList } from '../../types/offer';
 
-type AppProps = {
-  offersList: OffersList;
-};
-
-function App({ offersList }: AppProps) {
+function App() {
   return (
     <BrowserRouter>
       <Routes>
@@ -21,12 +16,12 @@ function App({ offersList }: AppProps) {
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.NoAuth}>
-              <FavoritesPage offersList={offersList} />
+            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+              <FavoritesPage />
             </PrivateRoute>
           }
         />
-        <Route path={AppRoute.Offer} element={<OfferPage offers={offersList} />} />
+        <Route path={AppRoute.Offer} element={<OfferPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

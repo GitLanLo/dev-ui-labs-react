@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
 import { Logo } from '../../components/logo/logo';
@@ -7,7 +8,7 @@ import { CitiesList } from '../../components/cities-list/cities-list';
 import { SortOptions } from '../../components/sort-options/sort-options';
 import { FullOffer } from '../../types/offer';
 import { RootState, AppDispatch } from '../../store';
-import { CITIES_LOCATION, SortOffersType } from '../../const';
+import { AppRoute, CITIES_LOCATION, SortOffersType } from '../../const';
 import { changeCity } from '../../store/action';
 import { sortOffers } from '../../utils';
 import { SortType } from '../../types/sort';
@@ -17,6 +18,7 @@ function MainPage() {
 
   const currentCityName = useSelector((state: RootState) => state.cityName);
   const allOffers = useSelector((state: RootState) => state.offers);
+  const favoritesCount = allOffers.filter((offer) => offer.isFavorite).length;
 
   const [selectedOffer, setSelectedOffer] = useState<FullOffer | null>(null);
   const [currentSortType, setCurrentSortType] = useState<SortType>(
@@ -60,15 +62,16 @@ function MainPage() {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <a
+                  <Link
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    to={AppRoute.Favorites}
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
                       Oliver.conner@gmail.com
                     </span>
-                  </a>
+                    <span className="header__favorite-count">{favoritesCount}</span>
+                  </Link>
                 </li>
                 <li className="header__nav-item">
                   <a className="header__nav-link" href="#">

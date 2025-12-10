@@ -32,7 +32,7 @@ function SortOptions({ currentSortType, onChange }: SortOptionsProps) {
       >
         {currentSortType}
         <svg className="places__sorting-arrow" width="7" height="4">
-          <use href="#icon-arrow-select"></use>
+          <use xlinkHref="/img/sprite.svg#icon-arrow-select"></use>
         </svg>
       </span>
       <ul

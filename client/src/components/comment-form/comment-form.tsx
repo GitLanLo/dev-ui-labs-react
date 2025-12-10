@@ -1,4 +1,4 @@
-import { FormEvent, useState, ChangeEvent } from 'react';
+import { FormEvent, useState, ChangeEvent, Fragment } from 'react';
 
 function CommentForm() {
   const [rating, setRating] = useState<number | null>(null);
@@ -24,7 +24,7 @@ function CommentForm() {
 
       <div className="reviews__rating-form form__rating">
         {[5,4,3,2,1].map((star) => (
-          <span key={star}>
+          <Fragment key={star}>
             <input
               className="form__rating-input visually-hidden"
               name="rating"
@@ -39,11 +39,11 @@ function CommentForm() {
               className="reviews__rating-label form__rating-label"
               title="rating"
             >
-              <svg className="form__star-image" width="37" height="33">
-                <use xlinkHref="#icon-star"></use>
+              <svg className="form__star-image" width="37" height="33" >
+                <use xlinkHref="/img/sprite.svg#icon-star"></use>
               </svg>
             </label>
-          </span>
+          </Fragment>
         ))}
       </div>
 

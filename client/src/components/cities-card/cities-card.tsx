@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { AppRoute } from '../../const';
 import { FullOffer } from '../../types/offer';
+import { toggleFavorite } from '../../store/action';
+import { AppDispatch } from '../../store';
 
 type CitiesCardProps = {
   offer: FullOffer;
@@ -10,6 +13,7 @@ type CitiesCardProps = {
 
 function CitiesCard({ offer, onMouseEnter, onMouseLeave }: CitiesCardProps) {
   const ratingWidth = `${(offer.rating / 5) * 100}%`;
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleMouseEnter = () => {
     if (onMouseEnter) {
@@ -56,9 +60,10 @@ function CitiesCard({ offer, onMouseEnter, onMouseLeave }: CitiesCardProps) {
               offer.isFavorite ? 'place-card__bookmark-button--active' : ''
             }`.trim()}
             type="button"
+            onClick={() => dispatch(toggleFavorite(offer.id))}
           >
             <svg className="place-card__bookmark-icon" width="18" height="19">
-              <use href="#icon-bookmark"></use>
+              <use xlinkHref="/img/sprite.svg#icon-bookmark"></use>
             </svg>
             <span className="visually-hidden">
               {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
