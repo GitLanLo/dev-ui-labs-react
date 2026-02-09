@@ -8,10 +8,17 @@ import { Map } from '../../components/map/map';
 import { NearPlacesList } from '../../components/near-places-list/near-places-list';
 import { FullOffer } from '../../types/offer';
 import { reviewsByOfferId } from '../../mocks/reviews';
-import { Reviews } from '../../types/review';
+import { NewReview, Review, Reviews, ReviewsByOfferId } from '../../types/review';
 import { RootState, AppDispatch } from '../../store';
 import { toggleFavorite } from '../../store/action';
 import { AppRoute } from '../../const';
+
+const CURRENT_USER = {
+  id: 'current-user',
+  name: 'Oliver',
+  isPro: false,
+  avatarUrl: '/img/avatar-max.jpg',
+};
 
 function OfferPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +27,8 @@ function OfferPage() {
   const offers = useSelector((state: RootState) => state.offers);
   const favoritesCount = offers.filter((item) => item.isFavorite).length;
   const [selectedPoint, setSelectedPoint] = useState<FullOffer | null>(null);
+  const [publishedReviewsByOfferId, setPublishedReviewsByOfferId] =
+    useState<ReviewsByOfferId>({ ...reviewsByOfferId });
 
   const offer: FullOffer | undefined = offers.find((item) => item.id === id);
 
@@ -45,7 +54,7 @@ function OfferPage() {
   }
 
   const ratingWidth = `${(offer.rating / 5) * 100}%`;
-  const offerReviews: Reviews = reviewsByOfferId[offer.id] ?? [];
+  const offerReviews: Reviews = publishedReviewsByOfferId[offer.id] ?? [];
 
   const nearbyOffers = offers.filter(
     (item) => item.city.name === offer.city.name && item.id !== offer.id
@@ -57,6 +66,21 @@ function OfferPage() {
 
   const handleNearPlaceMouseLeave = () => {
     setSelectedPoint(null);
+  };
+
+  const handleReviewSubmit = (review: NewReview) => {
+    const newReview: Review = {
+      id: `${offer.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      comment: review.comment,
+      rating: review.rating,
+      date: new Date().toISOString(),
+      user: CURRENT_USER,
+    };
+
+    setPublishedReviewsByOfferId((prevState) => ({
+      ...prevState,
+      [offer.id]: [newReview, ...(prevState[offer.id] ?? [])],
+    }));
   };
 
   const mapSelectedPoint = selectedPoint ?? offer;
@@ -198,7 +222,7 @@ function OfferPage() {
 
               <section className="offer__reviews reviews">
                 <ReviewsList reviews={offerReviews} />
-                <CommentForm />
+                <CommentForm onSubmit={handleReviewSubmit} />
               </section>
             </div>
           </div>

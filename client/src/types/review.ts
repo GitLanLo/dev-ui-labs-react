@@ -13,5 +13,7 @@ export type Review = {
   user: ReviewUser;
 };
 
+export type NewReview = Pick<Review, 'comment' | 'rating'>;
+
 export type Reviews = Review[];
 export type ReviewsByOfferId = Record<string, Reviews>;

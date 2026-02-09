@@ -1,8 +1,20 @@
 import { FormEvent, useState, ChangeEvent, Fragment } from 'react';
+import { NewReview } from '../../types/review';
 
-function CommentForm() {
+const MIN_COMMENT_LENGTH = 50;
+const MAX_COMMENT_LENGTH = 300;
+
+type CommentFormProps = {
+  onSubmit: (review: NewReview) => void;
+};
+
+function CommentForm({ onSubmit }: CommentFormProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [comment, setComment] = useState('');
+
+  const isCommentLengthValid =
+    comment.length >= MIN_COMMENT_LENGTH && comment.length <= MAX_COMMENT_LENGTH;
+  const isFormValid = rating !== null && isCommentLengthValid;
 
   const handleRatingChange = (evt: ChangeEvent<HTMLInputElement>) => {
     setRating(Number(evt.target.value));
@@ -14,6 +26,17 @@ function CommentForm() {
 
   const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
+    if (rating === null || !isCommentLengthValid) {
+      return;
+    }
+
+    onSubmit({
+      rating,
+      comment: comment.trim(),
+    });
+
+    setRating(null);
+    setComment('');
   };
 
   return (
@@ -31,6 +54,7 @@ function CommentForm() {
               value={star}
               id={`${star}-stars`}
               type="radio"
+              required
               checked={rating === star}
               onChange={handleRatingChange}
             />
@@ -53,6 +77,9 @@ function CommentForm() {
         name="review"
         placeholder="Tell how was your stay..."
         value={comment}
+        minLength={MIN_COMMENT_LENGTH}
+        maxLength={MAX_COMMENT_LENGTH}
+        required
         onChange={handleCommentChange}
       />
 
@@ -61,7 +88,11 @@ function CommentForm() {
           To submit review please set rating and write at least{' '}
           <b className="reviews__text-amount">50 characters</b>.
         </p>
-        <button className="reviews__submit form__submit button" type="submit" disabled>
+        <button
+          className="reviews__submit form__submit button"
+          type="submit"
+          disabled={!isFormValid}
+        >
           Submit
         </button>
       </div>
