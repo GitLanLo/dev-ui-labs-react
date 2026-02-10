@@ -210,7 +210,7 @@ export const fullOffers: FullOffer[] = [
       avatarUrl: '/img/avatar-max.jpg',
       isPro: false,
     },
-    images: ['/img/studio-01.jpg', '/img/apartment-02.jpg', '/img/room.jpg'],
+    images: ['/img/apartment-02.jpg', '/img/room.jpg', '/img/apartment-01.jpg'],
     maxAdults: 2,
   },
   {

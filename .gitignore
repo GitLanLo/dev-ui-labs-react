@@ -51,7 +51,6 @@ client/.vite-temp/
 
 # Игнорируем корневой node_modules (ты запускаешь проект в /client)
 node_modules/
-
+TZ/
 markup/
-
 
