@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import offerRouter from './offerRoute.js';
-import reviewRouter from './reviewRoute.js';
-import userRouter from './userRoute.js';
+import offerRouter from './offerRoutes.js';
+import userRotes from './userRoutes.js';
 
-const router = Router();
+const router = new Router();
 
 router.use('/', offerRouter);
-router.use('/', reviewRouter);
-router.use('/', userRouter);
+router.use('/', userRotes);
 
-export default router;
+export { router };
