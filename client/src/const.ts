@@ -10,9 +10,18 @@ export enum AppRoute {
 }
 
 export enum AuthorizationStatus {
+  Unknown = 'Unknown',
   Auth = 'Auth',
   NoAuth = 'NoAuth',
 }
+
+export const APIRoute = {
+  Offers: '/offers',
+  Login: '/login',
+  Logout: '/logout',
+} as const;
+
+export const TIMEOUT_SHOW_ERROR = 2000;
 import { CityOffer } from './types/offer';
 
 export const DEFAULT_CITY_NAME = 'Paris';

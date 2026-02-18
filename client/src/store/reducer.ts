@@ -1,12 +1,23 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { changeCity, loadOffers, toggleFavorite } from './action';
+import {
+  changeCity,
+  offersCityList,
+  requireAuthorization,
+  setError,
+  setOffersDataLoadingStatus,
+  toggleFavorite,
+} from './action';
 import { CITIES_LOCATION, DEFAULT_CITY_NAME } from '../const';
 import { OffersList } from '../types/offer';
-import { fullOffers } from '../mocks/offers';
+import { AuthorizationStatusType } from '../types/authorization-status';
+import { AuthorizationStatus } from '../const';
 
 type OffersProcess = {
   cityName: string;
   offers: OffersList;
+  authorizationStatus: AuthorizationStatusType;
+  error: string | null;
+  isOffersDataLoading: boolean;
 };
 
 const initialCityName =
@@ -15,19 +26,28 @@ const initialCityName =
 
 const initialState: OffersProcess = {
   cityName: initialCityName,
-  offers: fullOffers,
+  offers: [],
+  authorizationStatus: AuthorizationStatus.Unknown,
+  error: null,
+  isOffersDataLoading: false,
 };
 
 export const reducer = createReducer(initialState, (builder) => {
   builder
     .addCase(changeCity, (state, action) => {
-      const newCity = CITIES_LOCATION.find((city) => city.name === action.payload);
-      if (newCity) {
-        state.cityName = newCity.name;
-      }
+      state.cityName = action.payload;
     })
-    .addCase(loadOffers, (state, action) => {
+    .addCase(offersCityList, (state, action) => {
       state.offers = action.payload;
+    })
+    .addCase(requireAuthorization, (state, action) => {
+      state.authorizationStatus = action.payload;
+    })
+    .addCase(setError, (state, action) => {
+      state.error = action.payload;
+    })
+    .addCase(setOffersDataLoadingStatus, (state, action) => {
+      state.isOffersDataLoading = action.payload;
     })
     .addCase(toggleFavorite, (state, action) => {
       const offer = state.offers.find((item) => item.id === action.payload);

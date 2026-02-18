@@ -12,6 +12,7 @@ import { AppRoute, CITIES_LOCATION, SortOffersType } from '../../const';
 import { changeCity } from '../../store/action';
 import { sortOffers } from '../../utils';
 import { SortType } from '../../types/sort';
+import { fetchOfferAction } from '../../store/api-actions';
 
 function MainPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,6 +36,7 @@ function MainPage() {
 
   const handleCityChange = (cityName: string) => {
     dispatch(changeCity(cityName));
+    dispatch(fetchOfferAction());
     setSelectedOffer(null);
   };
 
@@ -42,8 +44,9 @@ function MainPage() {
     setCurrentSortType(sortType);
   };
 
+  const normalizedCurrentCityName = currentCityName.trim().toLowerCase();
   const filteredOffers = allOffers.filter(
-    (offer) => offer.city.name === currentCityName
+    (offer) => offer.city.name.trim().toLowerCase() === normalizedCurrentCityName
   );
 
   const sortedOffers = sortOffers(filteredOffers, currentSortType);
@@ -102,7 +105,7 @@ function MainPage() {
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
               <b className="places__found">
-                {sortedOffers.length} places to stay in {city.name}
+                {sortedOffers.length} places to stay in {currentCityName}
               </b>
 
               <SortOptions
@@ -112,6 +115,7 @@ function MainPage() {
 
               <div className="cities__places-list places__list tabs__content">
                 <CitiesCardList
+                  key={currentCityName}
                   offers={sortedOffers}
                   onCardMouseEnter={handleCardMouseEnter}
                   onCardMouseLeave={handleCardMouseLeave}

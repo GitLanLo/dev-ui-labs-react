@@ -6,8 +6,17 @@ import { OfferPage } from '../../pages/offer-page/offer-page';
 import { NotFoundPage } from '../../pages/not-found-page/not-found-page';
 import { AppRoute, AuthorizationStatus } from '../../const';
 import { PrivateRoute } from '../private-route/private-route';
+import { useAppSelector } from '../../hooks';
+import { LoadingPage } from '../loading-page';
 
 function App() {
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+
+  if (authorizationStatus === AuthorizationStatus.Unknown || isOffersDataLoading) {
+    return <LoadingPage />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -16,7 +25,7 @@ function App() {
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+            <PrivateRoute authorizationStatus={authorizationStatus}>
               <FavoritesPage />
             </PrivateRoute>
           }
