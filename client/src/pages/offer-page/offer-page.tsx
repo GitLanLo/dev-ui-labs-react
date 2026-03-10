@@ -1,60 +1,62 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { MouseEvent, useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { CommentForm } from '../../components/comment-form/comment-form';
 import { ReviewsList } from '../../components/reviews-list/reviews-list';
 import { Map } from '../../components/map/map';
 import { NearPlacesList } from '../../components/near-places-list/near-places-list';
 import { FullOffer } from '../../types/offer';
-import { reviewsByOfferId } from '../../mocks/reviews';
-import { NewReview, Review, Reviews, ReviewsByOfferId } from '../../types/review';
-import { RootState, AppDispatch } from '../../store';
-import { toggleFavorite } from '../../store/action';
-import { AppRoute } from '../../const';
-
-const CURRENT_USER = {
-  id: 'current-user',
-  name: 'Oliver',
-  isPro: false,
-  avatarUrl: '/img/avatar-max.jpg',
-};
+import { NewReview } from '../../types/review';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { AppRoute, AuthorizationStatus } from '../../const';
+import {
+  changeFavoriteStatusAction,
+  fetchOfferAction,
+  fetchOfferDetailsAction,
+  logoutAction,
+  postReviewAction,
+} from '../../store/api-actions';
+import { LoadingPage } from '../../components/loading-page';
 
 function OfferPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const dispatch = useDispatch<AppDispatch>();
-  const offers = useSelector((state: RootState) => state.offers);
+  const dispatch = useAppDispatch();
+  const offers = useAppSelector((state) => state.offers);
+  const offer = useAppSelector((state) => state.currentOffer);
+  const offerReviews = useAppSelector((state) => state.offerReviews);
+  const isOfferDetailsLoading = useAppSelector((state) => state.isOfferDetailsLoading);
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const userData = useAppSelector((state) => state.userData);
+  const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
   const favoritesCount = offers.filter((item) => item.isFavorite).length;
   const [selectedPoint, setSelectedPoint] = useState<FullOffer | null>(null);
-  const [publishedReviewsByOfferId, setPublishedReviewsByOfferId] =
-    useState<ReviewsByOfferId>({ ...reviewsByOfferId });
 
-  const offer: FullOffer | undefined = offers.find((item) => item.id === id);
+  useEffect(() => {
+    if (!offers.length) {
+      dispatch(fetchOfferAction());
+    }
+  }, [dispatch, offers.length]);
 
-  if (!offer) {
-    return (
-      <div className="page">
-        <header className="header">
-          <div className="container">
-            <div className="header__wrapper">
-              <div className="header__left">
-                <Logo />
-              </div>
-            </div>
-          </div>
-        </header>
-        <main className="page__main page__main--offer">
-          <div className="container">
-            <p>Offer not found</p>
-          </div>
-        </main>
-      </div>
-    );
+  useEffect(() => {
+    if (!id) {
+      navigate(AppRoute.NotFound);
+      return;
+    }
+
+    dispatch(fetchOfferDetailsAction(id))
+      .unwrap()
+      .catch(() => {
+        navigate(AppRoute.NotFound);
+      });
+  }, [dispatch, id, navigate]);
+
+  if (isOfferDetailsLoading || !offer || offer.id !== id) {
+    return <LoadingPage />;
   }
 
   const ratingWidth = `${(offer.rating / 5) * 100}%`;
-  const offerReviews: Reviews = publishedReviewsByOfferId[offer.id] ?? [];
 
   const nearbyOffers = offers.filter(
     (item) => item.city.name === offer.city.name && item.id !== offer.id
@@ -69,18 +71,30 @@ function OfferPage() {
   };
 
   const handleReviewSubmit = (review: NewReview) => {
-    const newReview: Review = {
-      id: `${offer.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      comment: review.comment,
-      rating: review.rating,
-      date: new Date().toISOString(),
-      user: CURRENT_USER,
-    };
+    if (!id) {
+      return;
+    }
 
-    setPublishedReviewsByOfferId((prevState) => ({
-      ...prevState,
-      [offer.id]: [newReview, ...(prevState[offer.id] ?? [])],
-    }));
+    dispatch(postReviewAction({ offerId: id, comment: review.comment, rating: review.rating }));
+  };
+
+  const handleFavoriteClick = () => {
+    if (!isAuthorized) {
+      navigate(AppRoute.Login);
+      return;
+    }
+
+    dispatch(
+      changeFavoriteStatusAction({
+        offerId: offer.id,
+        status: offer.isFavorite ? 0 : 1,
+      })
+    );
+  };
+
+  const handleLogoutClick = (evt: MouseEvent<HTMLAnchorElement>) => {
+    evt.preventDefault();
+    dispatch(logoutAction());
   };
 
   const mapSelectedPoint = selectedPoint ?? offer;
@@ -96,22 +110,36 @@ function OfferPage() {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <Link
-                    className="header__nav-link header__nav-link--profile"
-                    to={AppRoute.Favorites}
-                  >
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">
-                      Myemail@gmail.com
-                    </span>
-                    <span className="header__favorite-count">{favoritesCount}</span>
-                  </Link>
+                  {authorizationStatus === AuthorizationStatus.Auth && userData ? (
+                    <Link
+                      className="header__nav-link header__nav-link--profile"
+                      to={AppRoute.Favorites}
+                    >
+                      <div
+                        className="header__avatar-wrapper user__avatar-wrapper"
+                        style={{
+                          backgroundImage: `url(${userData.avatar})`,
+                          backgroundSize: 'cover',
+                          borderRadius: '50%',
+                        }}
+                      ></div>
+                      <span className="header__user-name user__name">{userData.email}</span>
+                      <span className="header__favorite-count">{favoritesCount}</span>
+                    </Link>
+                  ) : (
+                    <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Login}>
+                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                      <span className="header__login">Sign in</span>
+                    </Link>
+                  )}
                 </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {authorizationStatus === AuthorizationStatus.Auth && (
+                  <li className="header__nav-item">
+                    <a className="header__nav-link" href="#" onClick={handleLogoutClick}>
+                      <span className="header__signout">Sign out</span>
+                    </a>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>
@@ -142,16 +170,16 @@ function OfferPage() {
                 <h1 className="offer__name">{offer.title}</h1>
                 <button
                   className={`offer__bookmark-button button ${
-                    offer.isFavorite ? 'place-card__bookmark-button--active' : ''
+                    isAuthorized && offer.isFavorite ? 'offer__bookmark-button--active' : ''
                   }`.trim()}
                   type="button"
-                  onClick={() => dispatch(toggleFavorite(offer.id))}
+                  onClick={handleFavoriteClick}
                 >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="/img/sprite.svg#icon-bookmark"></use>
                   </svg>
                   <span className="visually-hidden">
-                    {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
+                    {isAuthorized && offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
                   </span>
                 </button>
               </div>
@@ -222,7 +250,9 @@ function OfferPage() {
 
               <section className="offer__reviews reviews">
                 <ReviewsList reviews={offerReviews} />
-                <CommentForm onSubmit={handleReviewSubmit} />
+                {isAuthorized && (
+                  <CommentForm onSubmit={handleReviewSubmit} />
+                )}
               </section>
             </div>
           </div>

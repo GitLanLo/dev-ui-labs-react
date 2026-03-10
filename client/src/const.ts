@@ -7,6 +7,7 @@ export enum AppRoute {
   Login = '/login',
   Favorites = '/favorites',
   Offer = '/offer/:id',
+  NotFound = '/404',
 }
 
 export enum AuthorizationStatus {
@@ -17,6 +18,8 @@ export enum AuthorizationStatus {
 
 export const APIRoute = {
   Offers: '/offers',
+  Favorite: '/favorite',
+  Comments: '/comments',
   Login: '/login',
   Logout: '/logout',
 } as const;

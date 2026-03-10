@@ -1,11 +1,12 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../../components/logo/logo';
 import { FavoriteCardList } from '../../components/favorite-card-list/favorite-card-list';
 import { FullOffer, OffersList } from '../../types/offer';
-import { RootState, AppDispatch } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { changeCity } from '../../store/action';
-import { AppRoute } from '../../const';
+import { AppRoute, AuthorizationStatus } from '../../const';
+import { logoutAction } from '../../store/api-actions';
 
 type FavoritesByCity = Record<string, FullOffer[]>;
 
@@ -24,12 +25,20 @@ function groupFavoritesByCity(offers: OffersList): FavoritesByCity {
 }
 
 function FavoritesPage() {
-  const dispatch = useDispatch<AppDispatch>();
-  const offers = useSelector((state: RootState) => state.offers);
+  const dispatch = useAppDispatch();
+  const offers = useAppSelector((state) => state.offers);
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const userData = useAppSelector((state) => state.userData);
   const favorites = offers.filter((offer) => offer.isFavorite);
   const favoritesByCity = groupFavoritesByCity(favorites);
   const cityEntries = Object.entries(favoritesByCity);
   const favoritesCount = favorites.length;
+  const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
+
+  const handleLogoutClick = (evt: MouseEvent<HTMLAnchorElement>) => {
+    evt.preventDefault();
+    dispatch(logoutAction());
+  };
 
   return (
     <div className="page">
@@ -42,24 +51,36 @@ function FavoritesPage() {
             <nav className="header__nav">
               <ul className="header__nav-list">
                 <li className="header__nav-item user">
-                  <Link
-                    className="header__nav-link header__nav-link--profile"
-                    to={AppRoute.Favorites}
-                  >
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">
-                      Myemail@gmail.com
-                    </span>
-                    <span className="header__favorite-count">
-                      {favoritesCount}
-                    </span>
-                  </Link>
+                  {isAuthorized && userData ? (
+                    <Link
+                      className="header__nav-link header__nav-link--profile"
+                      to={AppRoute.Favorites}
+                    >
+                      <div
+                        className="header__avatar-wrapper user__avatar-wrapper"
+                        style={{
+                          backgroundImage: `url(${userData.avatar})`,
+                          backgroundSize: 'cover',
+                          borderRadius: '50%',
+                        }}
+                      ></div>
+                      <span className="header__user-name user__name">{userData.email}</span>
+                      <span className="header__favorite-count">{favoritesCount}</span>
+                    </Link>
+                  ) : (
+                    <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Login}>
+                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                      <span className="header__login">Sign in</span>
+                    </Link>
+                  )}
                 </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {isAuthorized && (
+                  <li className="header__nav-item">
+                    <a className="header__nav-link" href="#" onClick={handleLogoutClick}>
+                      <span className="header__signout">Sign out</span>
+                    </a>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>

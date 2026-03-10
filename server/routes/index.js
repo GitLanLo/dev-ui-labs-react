@@ -8,5 +8,6 @@ const router = new Router();
 router.use('/', offerRouter);
 router.use('/', userRotes);
 router.use('/comments', reviewRouter);
+router.use('/reviews', reviewRouter);
 
 export { router };

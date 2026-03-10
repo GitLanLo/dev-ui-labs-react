@@ -1,12 +1,10 @@
 export type UserData = {
   token: string;
-  id?: string;
-  name?: string;
-  avatarUrl?: string;
-  isPro?: boolean;
-  email?: string;
-  username?: string;
-  avatar?: string;
+  id: string | number;
+  email: string;
+  username: string;
+  avatar: string;
+  isPro: boolean;
 };
 
 export type AuthData = {

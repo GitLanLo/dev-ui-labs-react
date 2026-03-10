@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { MouseEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FullOffer } from '../../types/offer';
-import { AppRoute } from '../../const';
-import { toggleFavorite } from '../../store/action';
-import { AppDispatch } from '../../store';
+import { AppRoute, AuthorizationStatus } from '../../const';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { changeFavoriteStatusAction } from '../../store/api-actions';
 
 type NearPlacesCardProps = {
   offer: FullOffer;
@@ -13,7 +13,11 @@ type NearPlacesCardProps = {
 
 function NearPlacesCard({ offer, onMouseEnter, onMouseLeave }: NearPlacesCardProps) {
   const ratingWidth = `${(offer.rating / 5) * 100}%`;
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
+  const isFavoriteActive = isAuthorized && offer.isFavorite;
 
   const handleMouseEnter = () => {
     if (onMouseEnter) {
@@ -25,6 +29,22 @@ function NearPlacesCard({ offer, onMouseEnter, onMouseLeave }: NearPlacesCardPro
     if (onMouseLeave) {
       onMouseLeave();
     }
+  };
+
+  const handleBookmarkClick = (evt: MouseEvent<HTMLButtonElement>) => {
+    evt.preventDefault();
+
+    if (!isAuthorized) {
+      navigate(AppRoute.Login);
+      return;
+    }
+
+    dispatch(
+      changeFavoriteStatusAction({
+        offerId: offer.id,
+        status: offer.isFavorite ? 0 : 1,
+      })
+    );
   };
 
   return (
@@ -59,16 +79,16 @@ function NearPlacesCard({ offer, onMouseEnter, onMouseLeave }: NearPlacesCardPro
           </div>
           <button
             className={`place-card__bookmark-button button ${
-              offer.isFavorite ? 'place-card__bookmark-button--active' : ''
+              isFavoriteActive ? 'place-card__bookmark-button--active' : ''
             }`.trim()}
             type="button"
-            onClick={() => dispatch(toggleFavorite(offer.id))}
+            onClick={handleBookmarkClick}
           >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use xlinkHref="/img/sprite.svg#icon-bookmark"></use>
             </svg>
             <span className="visually-hidden">
-              {offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}
+              {isFavoriteActive ? 'In bookmarks' : 'To bookmarks'}
             </span>
           </button>
         </div>

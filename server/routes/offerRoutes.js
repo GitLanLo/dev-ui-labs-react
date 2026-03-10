@@ -21,7 +21,7 @@ router.post(
   createOffer
 );
 router.get('/offers/:id', getFullOffer);
-router.get('/favorite', getFavoriteOffers);
+router.get('/favorite', authenticateToken, getFavoriteOffers);
 router.post('/favorite/:offerId/:status', authenticateToken, toggleFavorite);
 
 export default router;
