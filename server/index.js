@@ -5,6 +5,8 @@ import cors from 'cors';
 import path from 'path';
 import { router } from './routes/index.js';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import errorMiddleware from './middleware/ErrorHandlingMiddleware.js';
 import Offer from './models/offer.js';
 import Review from './models/review.js';
@@ -15,6 +17,8 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 5050;
+const swaggerPath = path.resolve(__dirname, '../docs/swagger.yaml');
+const swaggerDocument = YAML.load(swaggerPath);
 
 const app = express();
 const loadedModels = [User, Offer, Review];
@@ -22,6 +26,7 @@ const loadedModels = [User, Offer, Review];
 app.use(cors());
 app.use(express.json());
 app.use('/static', express.static(path.resolve(__dirname, 'static')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/', router);
 app.use(errorMiddleware);
 

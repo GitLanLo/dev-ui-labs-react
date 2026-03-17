@@ -1,14 +1,19 @@
 {
+  "scripts": {
+    "swagger:gen-examples": "node scripts/gen-swagger-examples.js"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.3.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1"
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "yaml": "^2.8.2"
   }
 }
