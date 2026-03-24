@@ -30,11 +30,13 @@ type OffersProcess = {
   isOfferDetailsLoading: boolean;
 };
 
+export type InitialState = OffersProcess;
+
 const initialCityName =
   CITIES_LOCATION.find((city) => city.name === DEFAULT_CITY_NAME)?.name ??
   CITIES_LOCATION[0].name;
 
-const initialState: OffersProcess = {
+export const initialState: InitialState = {
   cityName: initialCityName,
   offers: [],
   currentOffer: null,

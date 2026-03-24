@@ -97,7 +97,7 @@ function CitiesCard({ offer, onMouseEnter, onMouseLeave }: CitiesCardProps) {
           </div>
         </div>
         <h2 className="place-card__name">
-          <a href="#">{offer.title}</a>
+          <Link to={AppRoute.Offer.replace(':id', offer.id)}>{offer.title}</Link>
         </h2>
         <p className="place-card__type">
           {offer.type.charAt(0).toUpperCase() + offer.type.slice(1)}

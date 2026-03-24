@@ -1,7 +1,7 @@
-import { MouseEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Logo } from '../../components/logo/logo';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { CommentForm } from '../../components/comment-form/comment-form';
+import { Header } from '../../components/header';
 import { ReviewsList } from '../../components/reviews-list/reviews-list';
 import { Map } from '../../components/map/map';
 import { NearPlacesList } from '../../components/near-places-list/near-places-list';
@@ -13,7 +13,6 @@ import {
   changeFavoriteStatusAction,
   fetchOfferAction,
   fetchOfferDetailsAction,
-  logoutAction,
   postReviewAction,
 } from '../../store/api-actions';
 import { LoadingPage } from '../../components/loading-page';
@@ -28,9 +27,7 @@ function OfferPage() {
   const offerReviews = useAppSelector((state) => state.offerReviews);
   const isOfferDetailsLoading = useAppSelector((state) => state.isOfferDetailsLoading);
   const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
-  const userData = useAppSelector((state) => state.userData);
   const isAuthorized = authorizationStatus === AuthorizationStatus.Auth;
-  const favoritesCount = offers.filter((item) => item.isFavorite).length;
   const [selectedPoint, setSelectedPoint] = useState<FullOffer | null>(null);
 
   useEffect(() => {
@@ -92,59 +89,11 @@ function OfferPage() {
     );
   };
 
-  const handleLogoutClick = (evt: MouseEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    dispatch(logoutAction());
-  };
-
   const mapSelectedPoint = selectedPoint ?? offer;
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Logo />
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  {authorizationStatus === AuthorizationStatus.Auth && userData ? (
-                    <Link
-                      className="header__nav-link header__nav-link--profile"
-                      to={AppRoute.Favorites}
-                    >
-                      <div
-                        className="header__avatar-wrapper user__avatar-wrapper"
-                        style={{
-                          backgroundImage: `url(${userData.avatar})`,
-                          backgroundSize: 'cover',
-                          borderRadius: '50%',
-                        }}
-                      ></div>
-                      <span className="header__user-name user__name">{userData.email}</span>
-                      <span className="header__favorite-count">{favoritesCount}</span>
-                    </Link>
-                  ) : (
-                    <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Login}>
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  )}
-                </li>
-                {authorizationStatus === AuthorizationStatus.Auth && (
-                  <li className="header__nav-item">
-                    <a className="header__nav-link" href="#" onClick={handleLogoutClick}>
-                      <span className="header__signout">Sign out</span>
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--offer">
         <section className="offer">

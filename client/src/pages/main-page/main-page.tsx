@@ -1,27 +1,22 @@
-import { MouseEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CitiesCardList } from '../../components/cities-card-list/cities-card-list';
-import { Logo } from '../../components/logo/logo';
+import { Header } from '../../components/header';
 import { Map } from '../../components/map/map';
 import { CitiesList } from '../../components/cities-list/cities-list';
 import { SortOptions } from '../../components/sort-options/sort-options';
 import { FullOffer } from '../../types/offer';
 import { RootState, AppDispatch } from '../../store';
-import { AppRoute, AuthorizationStatus, CITIES_LOCATION, SortOffersType } from '../../const';
+import { CITIES_LOCATION, SortOffersType } from '../../const';
 import { changeCity } from '../../store/action';
-import { sortOffers } from '../../utils';
+import { getOffersByCity, sortOffersByType } from '../../utils';
 import { SortType } from '../../types/sort';
-import { logoutAction } from '../../store/api-actions';
 
 function MainPage() {
   const dispatch = useDispatch<AppDispatch>();
 
   const currentCityName = useSelector((state: RootState) => state.cityName);
   const allOffers = useSelector((state: RootState) => state.offers);
-  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
-  const userData = useSelector((state: RootState) => state.userData);
-  const favoritesCount = allOffers.filter((offer) => offer.isFavorite).length;
 
   const [selectedOffer, setSelectedOffer] = useState<FullOffer | null>(null);
   const [currentSortType, setCurrentSortType] = useState<SortType>(
@@ -41,73 +36,19 @@ function MainPage() {
     setSelectedOffer(null);
   };
 
-  const handleLogoutClick = (evt: MouseEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    dispatch(logoutAction());
-  };
-
   const handleSortChange = (sortType: SortType) => {
     setCurrentSortType(sortType);
   };
 
-  const normalizedCurrentCityName = currentCityName.trim().toLowerCase();
-  const filteredOffers = allOffers.filter(
-    (offer) => offer.city.name.trim().toLowerCase() === normalizedCurrentCityName
-  );
-
-  const sortedOffers = sortOffers(filteredOffers, currentSortType);
+  const filteredOffers = getOffersByCity(currentCityName, allOffers);
+  const sortedOffers = sortOffersByType(filteredOffers, currentSortType);
   const city =
     CITIES_LOCATION.find((cityItem) => cityItem.name === currentCityName) ??
     CITIES_LOCATION[0];
 
   return (
     <div className="page page--gray page--main">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <Logo />
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                {authorizationStatus === AuthorizationStatus.Auth && userData ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <Link
-                        className="header__nav-link header__nav-link--profile"
-                        to={AppRoute.Favorites}
-                      >
-                        <div
-                          className="header__avatar-wrapper user__avatar-wrapper"
-                          style={{
-                            backgroundImage: `url(${userData.avatar})`,
-                            backgroundSize: 'cover',
-                            borderRadius: '50%',
-                          }}
-                        ></div>
-                        <span className="header__user-name user__name">{userData.email}</span>
-                        <span className="header__favorite-count">{favoritesCount}</span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <a className="header__nav-link" href="#" onClick={handleLogoutClick}>
-                        <span className="header__signout">Sign out</span>
-                      </a>
-                    </li>
-                  </>
-                ) : (
-                  <li className="header__nav-item user">
-                    <Link className="header__nav-link header__nav-link--profile" to={AppRoute.Login}>
-                      <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
