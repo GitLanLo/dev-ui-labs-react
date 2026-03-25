@@ -42,6 +42,7 @@ function MainPage() {
 
   const filteredOffers = getOffersByCity(currentCityName, allOffers);
   const sortedOffers = sortOffersByType(filteredOffers, currentSortType);
+  const hasOffers = sortedOffers.length > 0;
   const city =
     CITIES_LOCATION.find((cityItem) => cityItem.name === currentCityName) ??
     CITIES_LOCATION[0];
@@ -50,7 +51,11 @@ function MainPage() {
     <div className="page page--gray page--main">
       <Header />
 
-      <main className="page__main page__main--index">
+      <main
+        className={`page__main page__main--index ${
+          hasOffers ? '' : 'page__main--index-empty'
+        }`.trim()}
+      >
         <h1 className="visually-hidden">Cities</h1>
 
         <div className="tabs">
@@ -64,36 +69,56 @@ function MainPage() {
         </div>
 
         <div className="cities">
-          <div className="cities__places-container container">
-            <section className="cities__places places">
-              <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">
-                {sortedOffers.length} places to stay in {currentCityName}
-              </b>
+          <div
+            className={`cities__places-container ${
+              hasOffers ? '' : 'cities__places-container--empty'
+            } container`.trim()}
+          >
+            {hasOffers ? (
+              <>
+                <section className="cities__places places">
+                  <h2 className="visually-hidden">Places</h2>
+                  <b className="places__found">
+                    {sortedOffers.length} places to stay in {currentCityName}
+                  </b>
 
-              <SortOptions
-                currentSortType={currentSortType}
-                onChange={handleSortChange}
-              />
+                  <SortOptions
+                    currentSortType={currentSortType}
+                    onChange={handleSortChange}
+                  />
 
-              <div className="cities__places-list places__list tabs__content">
-                <CitiesCardList
-                  key={currentCityName}
-                  offers={sortedOffers}
-                  onCardMouseEnter={handleCardMouseEnter}
-                  onCardMouseLeave={handleCardMouseLeave}
-                />
-              </div>
-            </section>
+                  <div className="cities__places-list places__list tabs__content">
+                    <CitiesCardList
+                      key={currentCityName}
+                      offers={sortedOffers}
+                      onCardMouseEnter={handleCardMouseEnter}
+                      onCardMouseLeave={handleCardMouseLeave}
+                    />
+                  </div>
+                </section>
 
-            <div className="cities__right-section">
-              <Map
-                className="cities__map map"
-                city={city}
-                points={sortedOffers}
-                selectedPoint={selectedOffer}
-              />
-            </div>
+                <div className="cities__right-section">
+                  <Map
+                    className="cities__map map"
+                    city={city}
+                    points={sortedOffers}
+                    selectedPoint={selectedOffer}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <section className="cities__no-places">
+                  <div className="cities__status-wrapper tabs__content">
+                    <b className="cities__status">No places to stay available</b>
+                    <p className="cities__status-description">
+                      We could not find any property available at the moment in {currentCityName}
+                    </p>
+                  </div>
+                </section>
+                <div className="cities__right-section"></div>
+              </>
+            )}
           </div>
         </div>
       </main>

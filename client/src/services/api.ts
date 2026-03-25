@@ -13,6 +13,9 @@ type DetailMessageType = {
   message: string;
 };
 
+const NETWORK_ERROR_MESSAGE = 'Сервер недоступен. Попробуйте позже.';
+const SERVER_ERROR_MESSAGE = 'Внутренняя ошибка сервера. Попробуйте позже.';
+
 const StatusCodeMapping: Record<number, boolean> = {
   [StatusCodes.BAD_REQUEST]: true,
   [StatusCodes.UNAUTHORIZED]: true,
@@ -49,11 +52,15 @@ export const createAPI = (): AxiosInstance => {
   api.interceptors.response.use(
     (response) => response,
     (error: AxiosError<DetailMessageType>) => {
-      if (error.response && shouldDisplayError(error.response)) {
+      if (!error.response) {
+        processErrorHandle(NETWORK_ERROR_MESSAGE);
+      } else if (shouldDisplayError(error.response)) {
         const detailMessage = error.response.data;
         if (detailMessage?.message) {
           processErrorHandle(detailMessage.message);
         }
+      } else if (error.response.status >= StatusCodes.INTERNAL_SERVER_ERROR) {
+        processErrorHandle(SERVER_ERROR_MESSAGE);
       }
 
       throw error;
