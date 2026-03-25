@@ -15,6 +15,9 @@ export const setError = createAction('setError', (error: string | null) => ({
 export const setOffersDataLoadingStatus = createAction<boolean>(
   'data/setOffersDataLoadingStatus'
 );
+export const setOffersLoadErrorStatus = createAction<boolean>(
+  'data/setOffersLoadErrorStatus'
+);
 export const setOfferDetailsLoadingStatus = createAction<boolean>(
   'data/setOfferDetailsLoadingStatus'
 );

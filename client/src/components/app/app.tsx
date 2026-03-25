@@ -34,14 +34,20 @@ const NotFoundPage = lazy(async () => {
 function App() {
   const dispatch = useAppDispatch();
   const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+  const offers = useAppSelector((state) => state.offers);
   const isOffersDataLoading = useAppSelector((state) => state.isOffersDataLoading);
+  const hasOffersLoadError = useAppSelector((state) => state.hasOffersLoadError);
 
   useEffect(() => {
     dispatch(checkAuthAction());
     dispatch(fetchOfferAction());
   }, [dispatch]);
 
-  if (authorizationStatus === AuthorizationStatus.Unknown || isOffersDataLoading) {
+  if (
+    authorizationStatus === AuthorizationStatus.Unknown ||
+    isOffersDataLoading ||
+    (hasOffersLoadError && offers.length === 0)
+  ) {
     return <LoadingPage />;
   }
 

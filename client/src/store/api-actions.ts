@@ -13,6 +13,7 @@ import {
   requireAuthorization,
   setError,
   setOffersDataLoadingStatus,
+  setOffersLoadErrorStatus,
   setUserData,
 } from './action';
 import { dropToken, getToken, saveToken } from '../services/token';
@@ -75,10 +76,14 @@ const fetchOfferAction = createAsyncThunk<void, undefined, ThunkApi>(
   'data/fetchOffers',
   async (_arg, { dispatch, extra: api }) => {
     dispatch(setOffersDataLoadingStatus(true));
+    dispatch(setOffersLoadErrorStatus(false));
     try {
       const { data } = await api.get<OfferDto[]>(APIRoute.Offers);
       const normalizedData = data.map(normalizeOffer);
       dispatch(offersCityList(normalizedData));
+    } catch {
+      dispatch(offersCityList([]));
+      dispatch(setOffersLoadErrorStatus(true));
     } finally {
       dispatch(setOffersDataLoadingStatus(false));
     }

@@ -9,6 +9,7 @@ import {
   setError,
   setFavoriteStatus,
   setOffersDataLoadingStatus,
+  setOffersLoadErrorStatus,
   setUserData,
 } from './action';
 import { CITIES_LOCATION, DEFAULT_CITY_NAME } from '../const';
@@ -27,6 +28,7 @@ type OffersProcess = {
   userData: UserData | null;
   error: string | null;
   isOffersDataLoading: boolean;
+  hasOffersLoadError: boolean;
   isOfferDetailsLoading: boolean;
 };
 
@@ -45,6 +47,7 @@ export const initialState: InitialState = {
   userData: null,
   error: null,
   isOffersDataLoading: true,
+  hasOffersLoadError: false,
   isOfferDetailsLoading: false,
 };
 
@@ -73,6 +76,9 @@ export const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(setOffersDataLoadingStatus, (state, action) => {
       state.isOffersDataLoading = action.payload;
+    })
+    .addCase(setOffersLoadErrorStatus, (state, action) => {
+      state.hasOffersLoadError = action.payload;
     })
     .addCase(setOfferDetailsLoadingStatus, (state, action) => {
       state.isOfferDetailsLoading = action.payload;

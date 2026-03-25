@@ -69,6 +69,7 @@ export function makeFakeStore(overrides: Partial<InitialState> = {}): InitialSta
     userData: null,
     error: null,
     isOffersDataLoading: false,
+    hasOffersLoadError: false,
     isOfferDetailsLoading: false,
     ...overrides,
   };
